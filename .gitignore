@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# Bin folder
+/bin/
+
 # Compiled Object files
 *.slo
 *.lo
