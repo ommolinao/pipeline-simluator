@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-// Forward declaration
+// Forward declaration - only Fluid is needed
 class Fluid;
 
 /**
@@ -79,7 +79,7 @@ public:
     double getRelativeRoughness() const;
     double getFrictionFactor(const Fluid* fluid, double P, double T) const;
     
-    // Display
+    // Display (removed Solver parameter to eliminate dependency)
     void displayInfo(const Fluid* fluid) const;
 };
 

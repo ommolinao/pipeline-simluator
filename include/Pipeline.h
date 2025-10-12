@@ -13,15 +13,36 @@ class Fluid;
 /**
  * @brief Pipeline class for managing a series of connected pipe segments
  * 
- * Handles sequential pipe chains where the outlet of pipe N becomes
- * the inlet of pipe N+1. Provides methods to solve the entire pipeline
+ * PHASE 4: Pure SoA (Structure-of-Arrays) storage for optimal cache performance.
+ * All pipe data stored in contiguous arrays for excellent memory locality.
+ * 
+ * Handles sequential pipe chains where the outlet of segment N becomes
+ * the inlet of segment N+1. Provides methods to solve the entire pipeline
  * and display results.
  */
 class Pipeline {
 private:
-    std::vector<Pipe*> pipes;  // Collection of pipe segments
     std::string pipelineID;    // Identifier for the pipeline
+    size_t numSegments;        // Number of segments
     
+    // Geometry arrays (cold data - rarely accessed during iteration)
+    std::vector<std::string> segmentIDs;
+    std::vector<double> x_inlets;
+    std::vector<double> x_outlets;
+    std::vector<double> z_inlets;
+    std::vector<double> z_outlets;
+    std::vector<double> lengths;
+    std::vector<double> diameters;
+    std::vector<double> roughnesses;
+    
+    // State arrays (hot data - frequently accessed during solving)
+    std::vector<double> inletPressures;
+    std::vector<double> outletPressures;
+    std::vector<double> inletTemps;
+    std::vector<double> outletTemps;
+    std::vector<double> inletVelocities;
+    std::vector<double> outletVelocities;
+
 public:
     /**
      * @brief Constructor
@@ -30,70 +51,83 @@ public:
     Pipeline(std::string id);
     
     /**
-     * @brief Add a pipe to the pipeline
-     * @param pipe Pointer to pipe segment
+     * @brief Destructor
+     */
+    ~Pipeline();
+    
+    /**
+     * @brief Add a pipe to the pipeline by extracting its properties
+     * @param pipe Pointer to pipe segment (data extracted, pointer not stored)
+     * @return true if pipe was added successfully, false if validation failed
      * 
-     * Pipes are added in order and will be solved sequentially.
+     * Convenience method that extracts geometry from a Pipe object and stores
+     * it in SoA arrays. The Pipe pointer is NOT stored - only data is copied.
+     * PHASE 4: Pure SoA storage - no Pipe pointers kept.
      */
-    void addPipe(Pipe* pipe);
+    bool addPipe(Pipe* pipe);
     
     /**
-     * @brief Get number of pipes in the pipeline
+     * @brief Add a pipe segment directly by specifying parameters
+     * @param id Pipe identifier
+     * @param x_in Inlet horizontal position (m)
+     * @param x_out Outlet horizontal position (m)
+     * @param z_in Inlet elevation (m)
+     * @param z_out Outlet elevation (m)
+     * @param dia Diameter (m)
+     * @param rough Absolute roughness (m)
+     * @return true if pipe was added successfully, false if validation failed
+     * 
+     * Direct method that populates SoA arrays without creating a Pipe object.
+     * More efficient for pipeline-only usage.
      */
-    size_t getNumberOfPipes() const;
+    bool addPipeSegment(const std::string& id, double x_in, double x_out,
+                        double z_in, double z_out, double dia, double rough);
     
     /**
-     * @brief Get a specific pipe by index
-     * @param index Index of the pipe (0-based)
-     * @return Pointer to the pipe, or nullptr if index is out of bounds
+     * @brief Get number of segments in pipeline
+     * @return Number of segments
      */
-    Pipe* getPipe(size_t index) const;
+    size_t getNumberOfSegments() const;
     
     /**
-     * @brief Solve the entire pipeline sequentially
+     * @brief Set inlet conditions for the first segment
+     * @param P Inlet pressure (Pa)
+     * @param T Inlet temperature (K)
+     * @param V Inlet velocity (m/s)
+     */
+    void setInletConditions(double P, double T, double V);
+    
+    /**
+     * @brief Solve the entire pipeline using SoA storage
      * @param solver Solver to use for each pipe segment
      * @param fluid Fluid being transported
      * 
-     * Solves each pipe in order, chaining outlet conditions to the next inlet.
-     * Assumes the first pipe's inlet conditions are already set.
+     * PHASE 4: Uses pure SoA storage with cache-optimized solving.
+     * Creates temporary Pipe objects on-the-fly to interface with Solver.
      */
-    void solveSequential(Solver* solver, const Fluid* fluid);
-    
-    /**
-     * @brief Display results for all pipes in the pipeline
-     * @param fluid Fluid for property calculations
-     */
-    void displayResults(const Fluid* fluid) const;
-    
-    /**
-     * @brief Get total length of the pipeline
-     */
-    double getTotalLength() const;
-    
-    /**
-     * @brief Get total elevation change (outlet - inlet)
-     */
-    double getTotalElevationChange() const;
+    void solveAll(Solver* solver, Fluid* fluid);
     
     /**
      * @brief Get total pressure drop across the pipeline
+     * @return Total pressure drop (Pa)
      */
     double getTotalPressureDrop() const;
     
     /**
-     * @brief Display summary statistics for the pipeline
+     * @brief Display information for all pipes in the pipeline
+     * @param fluid Fluid for property calculations
      */
-    void displaySummary(const Fluid* fluid) const;
+    void displayAll(const Fluid* fluid) const;
     
     /**
-     * @brief Clear all pipes from the pipeline
+     * @brief Display summary of pipeline
      */
-    void clear();
+    void displaySummary() const;
     
     /**
-     * @brief Get pipeline ID
+     * @brief Debug: Display SoA array contents
      */
-    std::string getPipelineID() const;
+    void displaySoADebug() const;
 };
 
 #endif // PIPELINE_H
