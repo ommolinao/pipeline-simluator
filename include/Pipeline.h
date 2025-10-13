@@ -42,6 +42,13 @@ private:
     std::vector<double> outletTemps;
     std::vector<double> inletVelocities;
     std::vector<double> outletVelocities;
+    
+    // Calculated fluid properties (populated after solving)
+    std::vector<double> reynoldsNumbers;    // Reynolds number for each segment
+    std::vector<double> frictionFactors;    // Darcy friction factor
+    std::vector<double> densities;          // Fluid density at segment conditions
+    std::vector<double> viscosities;        // Fluid viscosity at segment conditions
+    std::vector<double> pressureGradients;  // dP/dx for each segment (Pa/m)
 
 public:
     /**
@@ -250,6 +257,50 @@ public:
     double getOutletVelocity(size_t i) const {
         if (i >= numSegments) throw std::out_of_range("Segment index out of range");
         return outletVelocities[i];
+    }
+    
+    // ============================================================================
+    // Getters for calculated fluid properties
+    // ============================================================================
+    
+    /**
+     * @brief Get Reynolds number for segment i
+     */
+    double getReynoldsNumber(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return reynoldsNumbers[i];
+    }
+    
+    /**
+     * @brief Get friction factor for segment i
+     */
+    double getFrictionFactor(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return frictionFactors[i];
+    }
+    
+    /**
+     * @brief Get density for segment i
+     */
+    double getDensity(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return densities[i];
+    }
+    
+    /**
+     * @brief Get viscosity for segment i
+     */
+    double getViscosity(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return viscosities[i];
+    }
+    
+    /**
+     * @brief Get pressure gradient for segment i
+     */
+    double getPressureGradient(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return pressureGradients[i];
     }
 };
 

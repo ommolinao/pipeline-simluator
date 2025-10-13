@@ -111,6 +111,11 @@ public:
         std::vector<double> elevations_inlet, elevations_outlet;
         std::vector<double> velocities_inlet, velocities_outlet;
         std::vector<double> temps_inlet, temps_outlet;
+        std::vector<double> diameters;
+        std::vector<double> lengths_vec;
+        std::vector<double> reynolds_vec;
+        std::vector<double> friction_vec;
+        std::vector<double> gradient_vec;
         std::vector<std::string> pipeIDs;
         
         for (size_t i = 0; i < n; ++i) {
@@ -122,6 +127,11 @@ public:
             velocities_outlet.push_back(pipeline.getOutletVelocity(i));
             temps_inlet.push_back(pipeline.getInletTemperature(i));
             temps_outlet.push_back(pipeline.getOutletTemperature(i));
+            diameters.push_back(pipeline.getDiameter(i));
+            lengths_vec.push_back(pipeline.getLength(i));
+            reynolds_vec.push_back(pipeline.getReynoldsNumber(i));
+            friction_vec.push_back(pipeline.getFrictionFactor(i));
+            gradient_vec.push_back(pipeline.getPressureGradient(i));
             pipeIDs.push_back(pipeline.getPipeID(i));
         }
         
@@ -221,6 +231,18 @@ public:
     </div>
     
     <div class="plot-container">
+        <div id="reynoldsPlot"></div>
+    </div>
+    
+    <div class="plot-container">
+        <div id="frictionPlot"></div>
+    </div>
+    
+    <div class="plot-container">
+        <div id="pressureGradientPlot"></div>
+    </div>
+    
+    <div class="plot-container">
         <div id="schematicPlot"></div>
     </div>
 
@@ -232,6 +254,13 @@ public:
         const velocities = )" << vectorToJson(velocity_profile) << R"(;
         const temperatures = )" << vectorToJson(temp_profile) << R"(;
         const pipeIDs = )" << vectorToJson(pipeIDs) << R"(;
+        const diameters = )" << vectorToJson(diameters) << R"(;
+        const lengths = )" << vectorToJson(lengths_vec) << R"(;
+        
+        // Pre-calculated fluid properties from Pipeline SoA arrays
+        const reynolds = )" << vectorToJson(reynolds_vec) << R"(;
+        const frictionFactors = )" << vectorToJson(friction_vec) << R"(;
+        const pressureGradients = )" << vectorToJson(gradient_vec) << R"(;
         
         // Common layout settings
         const commonLayout = {
@@ -321,6 +350,86 @@ public:
         };
         
         Plotly.newPlot('temperaturePlot', [temperatureTrace], temperatureLayout, {responsive: true});
+        
+        // Reynolds Number Plot
+        const reynoldsSegmentPositions = [];
+        for (let i = 0; i < )" << n << R"(; i++) {
+            reynoldsSegmentPositions.push((distances[i] + distances[i+1]) / 2.0);
+        }
+        
+        const reynoldsTrace = {
+            x: reynoldsSegmentPositions,
+            y: reynolds,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Reynolds Number',
+            line: { color: '#00BCD4', width: 3 },
+            marker: { size: 8 }
+        };
+        
+        // Add flow regime annotations
+        const laminarLine = {
+            x: [distances[0], distances[distances.length-1]],
+            y: [2300, 2300],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Laminar/Turbulent Boundary',
+            line: { color: '#FF5722', width: 2, dash: 'dash' }
+        };
+        
+        const reynoldsLayout = {
+            ...commonLayout,
+            title: 'Reynolds Number Profile',
+            xaxis: { title: 'Distance along pipeline (m)' },
+            yaxis: { title: 'Reynolds Number (dimensionless)', type: 'log' },
+            annotations: [{
+                x: distances[Math.floor(distances.length/2)],
+                y: 2300,
+                text: 'Re = 2300 (Transition)',
+                showarrow: false,
+                yshift: 10
+            }]
+        };
+        
+        Plotly.newPlot('reynoldsPlot', [reynoldsTrace, laminarLine], reynoldsLayout, {responsive: true});
+        
+        // Friction Factor Plot
+        const frictionTrace = {
+            x: reynoldsSegmentPositions,
+            y: frictionFactors,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Darcy Friction Factor',
+            line: { color: '#795548', width: 3 },
+            marker: { size: 8 }
+        };
+        
+        const frictionLayout = {
+            ...commonLayout,
+            title: 'Friction Factor Profile',
+            xaxis: { title: 'Distance along pipeline (m)' },
+            yaxis: { title: 'Darcy Friction Factor (dimensionless)' }
+        };
+        
+        Plotly.newPlot('frictionPlot', [frictionTrace], frictionLayout, {responsive: true});
+        
+        // Pressure Gradient Plot
+        const gradientTrace = {
+            x: reynoldsSegmentPositions,
+            y: pressureGradients,
+            type: 'bar',
+            name: 'Pressure Gradient',
+            marker: { color: '#E91E63' }
+        };
+        
+        const gradientLayout = {
+            ...commonLayout,
+            title: 'Pressure Gradient per Segment',
+            xaxis: { title: 'Distance along pipeline (m)' },
+            yaxis: { title: 'Pressure Gradient (Pa/m)' }
+        };
+        
+        Plotly.newPlot('pressureGradientPlot', [gradientTrace], gradientLayout, {responsive: true});
         
         // Pipeline Schematic (2D layout)
         // Build x and z positions for schematic (inlet of each segment + final outlet)
