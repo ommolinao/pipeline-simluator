@@ -128,6 +128,129 @@ public:
      * @brief Debug: Display SoA array contents
      */
     void displaySoADebug() const;
+    
+    // ============================================================================
+    // Getter methods for Visualizer (read-only access to SoA arrays)
+    // ============================================================================
+    
+    /**
+     * @brief Get number of pipe segments (alias for compatibility)
+     */
+    size_t getNumSegments() const {
+        return numSegments;
+    }
+    
+    /**
+     * @brief Get pipe ID for segment i
+     */
+    std::string getPipeID(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return segmentIDs[i];
+    }
+    
+    /**
+     * @brief Get length of segment i
+     */
+    double getLength(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return lengths[i];
+    }
+    
+    /**
+     * @brief Get diameter of segment i
+     */
+    double getDiameter(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return diameters[i];
+    }
+    
+    /**
+     * @brief Get roughness of segment i
+     */
+    double getRoughness(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return roughnesses[i];
+    }
+    
+    /**
+     * @brief Get inlet X position of segment i
+     */
+    double getXInlet(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return x_inlets[i];
+    }
+    
+    /**
+     * @brief Get outlet X position of segment i
+     */
+    double getXOutlet(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return x_outlets[i];
+    }
+    
+    /**
+     * @brief Get inlet Z elevation of segment i
+     */
+    double getZInlet(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return z_inlets[i];
+    }
+    
+    /**
+     * @brief Get outlet Z elevation of segment i
+     */
+    double getZOutlet(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return z_outlets[i];
+    }
+    
+    /**
+     * @brief Get inlet pressure of segment i
+     */
+    double getInletPressure(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return inletPressures[i];
+    }
+    
+    /**
+     * @brief Get outlet pressure of segment i
+     */
+    double getOutletPressure(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return outletPressures[i];
+    }
+    
+    /**
+     * @brief Get inlet temperature of segment i
+     */
+    double getInletTemperature(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return inletTemps[i];
+    }
+    
+    /**
+     * @brief Get outlet temperature of segment i
+     */
+    double getOutletTemperature(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return outletTemps[i];
+    }
+    
+    /**
+     * @brief Get inlet velocity of segment i
+     */
+    double getInletVelocity(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return inletVelocities[i];
+    }
+    
+    /**
+     * @brief Get outlet velocity of segment i
+     */
+    double getOutletVelocity(size_t i) const {
+        if (i >= numSegments) throw std::out_of_range("Segment index out of range");
+        return outletVelocities[i];
+    }
 };
 
 #endif // PIPELINE_H
