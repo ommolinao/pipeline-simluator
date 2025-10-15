@@ -366,7 +366,7 @@ This is an educational project. Suggestions and improvements are welcome!
 
 ## 📄 License
 
-Educational project for pipeline flow simulation. Free to use for learning and research.
+All right reserved to the author (Oscar Molina).
 
 ## 👨‍💻 Author
 
