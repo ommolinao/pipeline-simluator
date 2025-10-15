@@ -2,8 +2,7 @@
 
 A high-performance C++ simulator for analyzing pressure drop, velocity profiles, and fluid properties in pipeline systems. Features a hybrid Structure-of-Arrays (SoA) architecture, four validated solvers, and interactive HTML visualizations.
 
-[![C++17](https://img.shields.io/badge/C++-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
-[![License](https://img.shields.io/badge/license-Educational-green.svg)](LICENSE)
+[![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 
 ## 🎯 Overview
 
