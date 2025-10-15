@@ -24,7 +24,7 @@ int main() {
     
     auto simpleSolver = std::make_unique<SimpleSolver>();
     auto iterativeSolver = std::make_unique<IterativeSolver>(20, 1.0);
-    auto adaptiveSolver = std::make_unique<AdaptiveSolver>(50000.0, 20, 1.0, 10);
+    auto adaptiveSolver = std::make_unique<AdaptiveSolver>(50000.0, 20, 1.0, 10, false);
     
     std::cout << "--- Using Iterative Solver (Single Pipe) ---" << std::endl;
     iterativeSolver->solve(&pipe1, water.get());  // Correct: solver operates on pipe
@@ -73,8 +73,8 @@ int main() {
     directPipeline.setInletConditions(1000000.0, 293.15, 2.0);
     
     // PHASE 4: Can use ANY solver type with SoA storage!
-    std::cout << "Using: " << adaptiveSolver->getSolverName() << std::endl;
-    directPipeline.solveAll(adaptiveSolver.get(), water.get());
+    std::cout << "Using: " << iterativeSolver->getSolverName() << std::endl;
+    directPipeline.solveAll(iterativeSolver.get(), water.get());
     
     // Display results
     directPipeline.displaySummary();

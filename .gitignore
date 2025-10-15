@@ -4,6 +4,9 @@
 # Bin folder
 /bin/
 
+# Results folder
+/results/
+
 # Compiled Object files
 *.slo
 *.lo
